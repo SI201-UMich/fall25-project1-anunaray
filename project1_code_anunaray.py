@@ -13,13 +13,6 @@ I also used it to help me rewrite my repetitive code into the load penguin stats
 import csv
 
 
-
-''' new code:
-Questions:
-1. What is the average flipper length of a certain type of penguin on a certain island?
-2. What is the average body mass of a certain type of penguin on a certain island?
-3. Which penguins are the largest, on average, by species on a certain island? (use both body mass and flipper length)'''
-
 def load_penguin_stats(penguin, island, fname = 'penguins.csv'):
     '''Reads the CSV file and transforms it into a list of dictionaries'''
     with open(fname, 'r') as file:
@@ -108,48 +101,40 @@ def find_penguin_distribution(penguin, gender):
     return output
 '''    
 
-'''What is the average flipper length of a certain type of penguin on a certain island?'''
+'''What is the average attribute of a certain type of penguin on a certain island?'''
 
-def avg_flipper_length(penguin, island):
-    
-    island_penguins = load_penguin_stats(penguin, island) # get all information about the specified penguin species
+def avg_calculator(penguin, island, attribute):
+    # Define units for each attribute
+    attribute_units = {
+        "flipper_length": "mm",
+        "body_mass": "g",
+        "bill_length": "mm",
+        "bill_depth": "mm",
+        
+    }
 
-    total_flipper_length = 0
+    island_penguins = load_penguin_stats(penguin, island)
+
+    total_attribute_data = 0
     count = 0
     for item in island_penguins:
-        if item['flipper_length'] is not None:
-            total_flipper_length += item['flipper_length']
+        if item[attribute] is not None:
+            total_attribute_data += item[attribute]
             count += 1
-    avg_length = total_flipper_length / count
+    if count == 0:
+        print(f"No data available for {attribute} of {penguin} penguins on {island}.")
+        return None
+    avg_length = total_attribute_data / count
     rounded_avg = round(avg_length, 2)
-    output = f"The average flipper length of {penguin} penguins on the island of {island} is {rounded_avg} mm."
+    unit = attribute_units.get(attribute, "")
+    output = f"The average {attribute} of {penguin} penguins on the island of {island} is {rounded_avg} {unit}."
     print(output)
-    return rounded_avg 
-
-def avg_body_mass(penguin, island): #reused code from average flipper length function
-    
-    island_penguins = load_penguin_stats(penguin, island) # get all information about the specified penguin species
-    
-    total_body_mass = 0
-    count = 0
-    for item in island_penguins:
-        if item['body_mass'] is not None:
-            total_body_mass += item['body_mass']
-            count += 1
-    avg_mass = total_body_mass / count
-    rounded_avg = round(avg_mass, 2)
-    output = f"The average body mass of {penguin} penguins on the island of {island} is {rounded_avg} g."
-    print(output)
-    return rounded_avg 
+    return rounded_avg
 
 
 def largest_penguins(penguin, island):
     # checks if the penguin has both a larger body mass and flipper length than the other species on the same island
-    
-    flipper_avg = avg_flipper_length(penguin, island)
-    body_mass_avg = avg_body_mass(penguin, island)
-    print(f"{flipper_avg}, {body_mass_avg}")
-
+    pass
 
 
 
@@ -157,8 +142,8 @@ def main():
     pass
 
 #load_penguin_stats('Adelie', 'Biscoe')
-avg_flipper_length('Adelie', 'Biscoe')
-avg_body_mass('Adelie', 'Biscoe')
+avg_calculator('Adelie', 'Biscoe', 'flipper_length')
+avg_calculator('Adelie', 'Biscoe', 'body_mass')
 # largest_penguins('Adelie', 'Biscoe')
 
 class TestPenguinStats:
