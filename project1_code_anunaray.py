@@ -5,7 +5,7 @@ date: 2024-09-15
 description: This program analyzes penguin data from a CSV file to answer specific questions about penguin species, their flipper lengths, and body masses on different islands.
 worked with: N/A
 Use of Gen AI: I used ChatGPT to mainly look through the rubric and my code to ensure I was meeting all the requirements.
-I also used it to help me rewrite my repetitive code into the load penguin stats function.
+I also used copilot to help me rewrite my repetitive code into the load penguin stats function, but I rewrote the averages functions by myself
 
 '''
 
@@ -65,7 +65,6 @@ def load_penguin_stats(penguin, island, fname = 'penguins.csv'):
     
     #print(island_penguins)
     return island_penguins
-
     
 ''' old code:
 def find_penguin_distribution(penguin, gender):
@@ -132,19 +131,42 @@ def avg_calculator(penguin, island, attribute):
     return rounded_avg
 
 
-def largest_penguins(penguin, island):
-    # checks if the penguin has both a larger body mass and flipper length than the other species on the same island
-    pass
+def largest_penguins_percent(penguin, island):
+    # checks if the penguin has both a larger body mass and flipper length than the others on the same island
+   
+    island_penguins = load_penguin_stats(penguin, island)
+    avg_flipper = avg_calculator(penguin, island, 'flipper_length')
+    avg_body_mass = avg_calculator(penguin, island, 'body_mass')
+
+    largest_pengs = []
+
+    for peng in island_penguins:
+        if peng['flipper_length'] is not None and peng['body_mass'] is not None:
+            if peng['flipper_length'] > avg_flipper and peng['body_mass'] > avg_body_mass:
+                largest_pengs.append(peng)
+    
+    largest_percent = 0
+
+    if len(island_penguins) > 0:
+        largest_percent = (len(largest_pengs) / len(island_penguins)) * 100
+        largest_percent = round(largest_percent, 2)
+    
+    print(f"{largest_percent}% of {penguin} penguins on {island} have both a larger body mass and flipper length than the average.")
+
+    return largest_percent
+
+
 
 
 
 def main():
     pass
 
-#load_penguin_stats('Adelie', 'Biscoe')
+
 avg_calculator('Adelie', 'Biscoe', 'flipper_length')
 avg_calculator('Adelie', 'Biscoe', 'body_mass')
-# largest_penguins('Adelie', 'Biscoe')
+largest_penguins_percent('Adelie', 'Biscoe')
+
 
 class TestPenguinStats:
    pass 
