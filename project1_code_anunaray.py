@@ -1,3 +1,15 @@
+'''
+file name: project1_code_anunaray.py
+author: Anu Narayan
+date: 2024-09-15
+description: This program analyzes penguin data from a CSV file to answer specific questions about penguin species, their flipper lengths, and body masses on different islands.
+worked with: N/A
+Use of Gen AI: I used ChatGPT to mainly look through the rubric and my code to ensure I was meeting all the requirements.
+I also used it to help me rewrite my repetitive code into the load penguin stats function.
+
+'''
+
+
 import csv
 
 
@@ -7,7 +19,8 @@ Questions:
 1. What is the average flipper length of a certain type of penguin on a certain island?
 2. What is the average body mass of a certain type of penguin on a certain island?
 3. Which penguins are the largest, on average, by species on a certain island? (use both body mass and flipper length)'''
-def load_penguin_stats(fname = 'penguins.csv'):
+
+def load_penguin_stats(penguin, island, fname = 'penguins.csv'):
     '''Reads the CSV file and transforms it into a list of dictionaries'''
     with open(fname, 'r') as file:
         reader = csv.reader(file)
@@ -50,7 +63,16 @@ def load_penguin_stats(fname = 'penguins.csv'):
             penguin_dict['Adelie'] = adelie_list
             penguin_dict['Chinstrap'] = chinstrap_list
             penguin_dict['Gentoo'] = gentoo_list
-    return penguin_dict
+    
+    penguin_data = penguin_dict[penguin] # get all information about the specified penguin species
+    island_penguins = [] #initial empty list to store penguis of the specified island
+    for item in penguin_data:
+        if item['island'] == island:
+            island_penguins.append(item)
+    
+    #print(island_penguins)
+    return island_penguins
+
     
 ''' old code:
 def find_penguin_distribution(penguin, gender):
@@ -86,15 +108,12 @@ def find_penguin_distribution(penguin, gender):
     return output
 '''    
 
+'''What is the average flipper length of a certain type of penguin on a certain island?'''
+
 def avg_flipper_length(penguin, island):
-    penguin_data = load_penguin_stats()[penguin] # get all information about the specified penguin species
-    island_penguins = [] #initial empty list to store penguis of the specified island
-    for item in penguin_data:
-        if item['island'] == island:
-            island_penguins.append(item)
     
-    # now that we have sorted all the data we need, we can calculate the average flipper length
-    
+    island_penguins = load_penguin_stats(penguin, island) # get all information about the specified penguin species
+
     total_flipper_length = 0
     count = 0
     for item in island_penguins:
@@ -106,14 +125,41 @@ def avg_flipper_length(penguin, island):
     output = f"The average flipper length of {penguin} penguins on the island of {island} is {rounded_avg} mm."
     print(output)
     return rounded_avg 
-    #print(island_penguins)
+
+def avg_body_mass(penguin, island): #reused code from average flipper length function
+    
+    island_penguins = load_penguin_stats(penguin, island) # get all information about the specified penguin species
+    
+    total_body_mass = 0
+    count = 0
+    for item in island_penguins:
+        if item['body_mass'] is not None:
+            total_body_mass += item['body_mass']
+            count += 1
+    avg_mass = total_body_mass / count
+    rounded_avg = round(avg_mass, 2)
+    output = f"The average body mass of {penguin} penguins on the island of {island} is {rounded_avg} g."
+    print(output)
+    return rounded_avg 
+
+
+def largest_penguins(penguin, island):
+    # checks if the penguin has both a larger body mass and flipper length than the other species on the same island
+    
+    flipper_avg = avg_flipper_length(penguin, island)
+    body_mass_avg = avg_body_mass(penguin, island)
+    print(f"{flipper_avg}, {body_mass_avg}")
+
+
 
 
 def main():
     pass
 
-
+#load_penguin_stats('Adelie', 'Biscoe')
 avg_flipper_length('Adelie', 'Biscoe')
+avg_body_mass('Adelie', 'Biscoe')
+# largest_penguins('Adelie', 'Biscoe')
 
 class TestPenguinStats:
    pass 
