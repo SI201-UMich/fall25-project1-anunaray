@@ -13,8 +13,10 @@ I also used copilot to help me rewrite my repetitive code into the load penguin 
 import csv
 
 
-def load_penguin_stats(penguin, island, fname = 'penguins.csv'):
-    '''Reads the CSV file and transforms it into a list of dictionaries'''
+def load_penguin_stats(fname = 'penguins.csv'):
+    
+    '''Reads CSV file and returns a dictionary with penguin species as keys and their attributes as values'''
+
     with open(fname, 'r') as file:
         reader = csv.reader(file)
         penguin_dict = {}
@@ -57,62 +59,37 @@ def load_penguin_stats(penguin, island, fname = 'penguins.csv'):
             penguin_dict['Chinstrap'] = chinstrap_list
             penguin_dict['Gentoo'] = gentoo_list
     
+    return penguin_dict
+
+def get_island_penguins(penguin, island):
+    
+    #main already checks if the penguin species and island are validgen
+
+    '''Returns a list of penguins of a specified species on a specified island'''
+
+    penguin_dict = load_penguin_stats() #load the penguin data from the CSV file
     penguin_data = penguin_dict[penguin] # get all information about the specified penguin species
     island_penguins = [] #initial empty list to store penguis of the specified island
     for item in penguin_data:
         if item['island'] == island:
             island_penguins.append(item)
     
-    #print(island_penguins)
+   
     return island_penguins
     
-''' old code:
-def find_penguin_distribution(penguin, gender):
-    'calculates the percentage of one type of penguin of one gender across all islands'
-    penguin_data = load_penguin_stats()[penguin] # get all information about the specified penguin species
-    
-    gendered_penguins = [] #initial empty list to store penguis of the specified gender
-    for item in penguin_data:
-        if item['sex'] == gender:
-            gendered_penguins.append(item)
-    total_count = len(gendered_penguins)
-    
-    # now that we have all of the penguins we need, we can calculate counts for each island
-
-    island_counts = {'Biscoe': 0, 'Dream': 0, 'Torgersen': 0}
-    for item in gendered_penguins:
-        island = item['island']
-        island_counts[island] += 1
-
-    # now that we have counts, we can calculate percentages
-    # take the total and divide each count by it, multiplying by 100 to get a percentage
-
-    island_percentages = {'Biscoe': 0, 'Dream': 0, 'Torgersen': 0}
-    for island, count in island_counts.items():
-        percent = (count/total_count) * 100
-        rounded_percent = round(percent, 2)
-        island_percentages[island] = rounded_percent
-    
-    # create the final output string
-
-    output = f"Percentage distribution of {gender} {penguin} penguins across islands:\n Biscoe: {island_percentages['Biscoe']}%\n Dream: {island_percentages['Dream']}\n Torgersen: {island_percentages['Torgersen']}%"
-    print(output)
-    return output
-'''    
-
-'''What is the average attribute of a certain type of penguin on a certain island?'''
 
 def avg_calculator(penguin, island, attribute):
-    # Define units for each attribute
+    
+    '''Calculates the average of a specified attribute for a specified penguin species on a specified island'''
+    
     attribute_units = {
         "flipper_length": "mm",
         "body_mass": "g",
         "bill_length": "mm",
-        "bill_depth": "mm",
-        
+        "bill_depth": "mm",    
     }
 
-    island_penguins = load_penguin_stats(penguin, island)
+    island_penguins = get_island_penguins(penguin, island)
 
     total_attribute_data = 0
     count = 0
@@ -127,46 +104,109 @@ def avg_calculator(penguin, island, attribute):
     rounded_avg = round(avg_length, 2)
     unit = attribute_units.get(attribute, "")
     output = f"The average {attribute} of {penguin} penguins on the island of {island} is {rounded_avg} {unit}."
-    print(output)
+    
     return rounded_avg
-
-
-def largest_penguins_percent(penguin, island):
-    # checks if the penguin has both a larger body mass and flipper length than the others on the same island
-   
-    island_penguins = load_penguin_stats(penguin, island)
+    
+def largest_penguins_list(penguin, island):
+    """
+    Returns a list of penguins of the given species on the given island
+    that have both a larger body mass and flipper length than the average.
+    """
+    island_penguins = get_island_penguins(penguin, island)
     avg_flipper = avg_calculator(penguin, island, 'flipper_length')
     avg_body_mass = avg_calculator(penguin, island, 'body_mass')
 
     largest_pengs = []
-
     for peng in island_penguins:
         if peng['flipper_length'] is not None and peng['body_mass'] is not None:
             if peng['flipper_length'] > avg_flipper and peng['body_mass'] > avg_body_mass:
                 largest_pengs.append(peng)
+    return largest_pengs
+
+def largest_penguins_percent(penguin, island):
+    """
+    Returns the percentage of penguins of the given species on the given island
+    that have both a larger body mass and flipper length than the average.
+    Returns 0 if none are larger than average, and None if no data is available.
+    """
+    island_penguins = get_island_penguins(penguin, island)
+    if not island_penguins:
+        return None #if there are no penguins of that species on that island, return None
     
-    largest_percent = 0
-
-    if len(island_penguins) > 0:
-        largest_percent = (len(largest_pengs) / len(island_penguins)) * 100
-        largest_percent = round(largest_percent, 2)
-    
-    print(f"{largest_percent}% of {penguin} penguins on {island} have both a larger body mass and flipper length than the average.")
-
-    return largest_percent
+    largest_pengs = largest_penguins_list(penguin, island)
+    largest_percent = (len(largest_pengs) / len(island_penguins)) * 100
+    return round(largest_percent, 2)
 
 
 
+def save_analysis_to_file(penguin, island):
+    with open("penguin_analysis.txt", "a") as file:
+        file.write(f"\nAnalysis for {penguin} penguins on {island} island:\n")
+        island_penguins = get_island_penguins(penguin, island)
+        if island_penguins == []:
+            file.write(f"\nNo {penguin} penguins found on {island}.\n\n")
+            return None
+        flipper_avg = avg_calculator(penguin, island, 'flipper_length')
+        body_mass_avg = avg_calculator(penguin, island, 'body_mass')
+        percentage = largest_penguins_percent(penguin, island)
+        file.write(f"Average flipper length: {flipper_avg} mm\n")
+        file.write(f"Average body mass: {body_mass_avg} g\n")
+        file.write(f"Percentage of penguins larger than average: {percentage}%\n")
+        
+        file.write("\n")
 
+    print(f"\nResults saved to 'penguin_analysis.txt'.")
+    return None
 
 def main():
-    pass
+    print("Welcome to the Penguin Data Analyzer!")
+    print("Available species: Adelie, Chinstrap, Gentoo")
+    print("Available islands: Biscoe, Dream, Torgersen\n")
+
+    penguin = input("Enter the penguin species you want to analyze: \n").capitalize()
+    island = input("Enter the island name: ").capitalize()
 
 
-avg_calculator('Adelie', 'Biscoe', 'flipper_length')
-avg_calculator('Adelie', 'Biscoe', 'body_mass')
-largest_penguins_percent('Adelie', 'Biscoe')
+    if penguin not in ['Adelie', 'Chinstrap', 'Gentoo']:
+        print(f"Error: {penguin} is not a valid penguin species.")
+        return None
+    if island not in ['Biscoe', 'Dream', 'Torgersen']:
+        print(f"Error: {island} is not a valid island name.")
+        return None
+    
+    island_penguins = get_island_penguins(penguin, island)
 
+    if island_penguins == []:
+        print(f"No {penguin} penguins found on {island}.")
+        save_analysis_to_file(penguin, island)
+        return None
+    
+    # Perform calculations
+    print("\nAnalyzing data...\n")
+
+    avg_flipper = avg_calculator(penguin, island, 'flipper_length')
+    
+    if avg_flipper is not None:
+        print(f"The average flipper length of {penguin} penguins on the island of {island} is {avg_flipper} mm.")
+    
+    avg_body_mass = avg_calculator(penguin, island, 'body_mass')
+    print(f"The average body mass of {penguin} penguins on the island of {island} is {avg_body_mass} g.")   
+    
+    largest_percent = largest_penguins_percent(penguin, island)
+    if largest_percent == 0:
+        print(f"No {penguin} penguins on {island} have both a larger body mass and flipper length than the average.")
+    else:
+        print(f"{largest_percent}% of {penguin} penguins on {island} have both a larger body mass and flipper length than the average.")
+    
+
+    # Write summary results to file
+    save_analysis_to_file(penguin, island)
+
+
+# avg_calculator('Adelie', 'Biscoe', 'flipper_length')
+# avg_calculator('Adelie', 'Biscoe', 'body_mass')
+# largest_penguins_percent('Adelie', 'Biscoe')
+main()
 
 class TestPenguinStats:
    pass 
