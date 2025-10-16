@@ -54,3 +54,59 @@ Average flipper length: 195.82 mm
 Average body mass: 3733.09 g
 Percentage of penguins larger than average: 35.29%
 
+
+Analysis for Chinstrap penguins on Biscoe island:
+
+No Chinstrap penguins found on Biscoe.
+
+
+Analysis for Chinstrap penguins on Dream island:
+Average flipper length: 195.82 mm
+Average body mass: 3733.09 g
+Percentage of penguins larger than average: 35.29%
+
+
+Analysis for Adelie penguins on Dream island:
+Average flipper length: 189.73 mm
+Average body mass: 3688.39 g
+Percentage of penguins larger than average: 35.71%
+
+
+Analysis for Adelie penguins on Biscoe island:
+Average flipper length: 188.8 mm
+Average body mass: 3709.66 g
+Percentage of penguins larger than average: 40.91%
+
+
+Analysis for Adelie penguins on Dream island:
+Average flipper length: 189.73 mm
+Average body mass: 3688.39 g
+Percentage of penguins larger than average: 35.71%
+
+
+Analysis for Gentoo penguins on Dream island:
+
+No Gentoo penguins found on Dream.
+
+
+Analysis for Gentoo penguins on Dream island:
+
+No Gentoo penguins found on Dream.
+
+Analysis for Adelie penguins on Torgersen island:
+Average flipper length: 191.2 mm
+Average body mass: 3706.37 g
+Percentage of penguins larger than average: 28.85%
+
+
+Analysis for Adelie penguins on Torgersen island:
+Average flipper length: 191.2 mm
+Average body mass: 3706.37 g
+Percentage of penguins larger than average: 28.85%
+
+
+Analysis for Adelie penguins on Dream island:
+Average flipper length: 189.73 mm
+Average body mass: 3688.39 g
+Percentage of penguins larger than average: 35.71%
+

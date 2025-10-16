@@ -6,12 +6,13 @@ description: This program analyzes penguin data from a CSV file to answer specif
 worked with: N/A
 Use of Gen AI: I used ChatGPT to mainly look through the rubric and my code to ensure I was meeting all the requirements.
 I also used copilot to help me rewrite my repetitive code into the load penguin stats function, but I rewrote the averages functions by myself
+Usec ChatGPT to create the self.setup function in the unit tests (sample test)
 
 '''
 
 
 import csv
-
+import unittest
 
 def load_penguin_stats(fname = 'penguins.csv'):
     
@@ -78,7 +79,7 @@ def get_island_penguins(penguin, island):
     return island_penguins
     
 
-def avg_calculator(penguin, island, attribute):
+def avg_calculator(penguin, island, attribute, island_penguins):
     
     '''Calculates the average of a specified attribute for a specified penguin species on a specified island'''
     
@@ -89,7 +90,7 @@ def avg_calculator(penguin, island, attribute):
         "bill_depth": "mm",    
     }
 
-    island_penguins = get_island_penguins(penguin, island)
+    #island_penguins = get_island_penguins(penguin, island)
 
     total_attribute_data = 0
     count = 0
@@ -106,49 +107,39 @@ def avg_calculator(penguin, island, attribute):
     output = f"The average {attribute} of {penguin} penguins on the island of {island} is {rounded_avg} {unit}."
     
     return rounded_avg
-    
-def largest_penguins_list(penguin, island):
-    """
-    Returns a list of penguins of the given species on the given island
-    that have both a larger body mass and flipper length than the average.
-    """
-    island_penguins = get_island_penguins(penguin, island)
-    avg_flipper = avg_calculator(penguin, island, 'flipper_length')
-    avg_body_mass = avg_calculator(penguin, island, 'body_mass')
 
-    largest_pengs = []
-    for peng in island_penguins:
-        if peng['flipper_length'] is not None and peng['body_mass'] is not None:
-            if peng['flipper_length'] > avg_flipper and peng['body_mass'] > avg_body_mass:
-                largest_pengs.append(peng)
-    return largest_pengs
 
-def largest_penguins_percent(penguin, island):
+def largest_penguins_percent(penguin, island, island_penguins):
     """
     Returns the percentage of penguins of the given species on the given island
     that have both a larger body mass and flipper length than the average.
     Returns 0 if none are larger than average, and None if no data is available.
     """
-    island_penguins = get_island_penguins(penguin, island)
     if not island_penguins:
         return None #if there are no penguins of that species on that island, return None
     
-    largest_pengs = largest_penguins_list(penguin, island)
+    avg_flipper = avg_calculator(penguin, island, 'flipper_length', island_penguins)
+    avg_body_mass = avg_calculator(penguin, island, 'body_mass', island_penguins)
+    largest_pengs = []
+    for peng in island_penguins:
+        if peng['flipper_length'] is not None and peng['body_mass'] is not None:
+            if peng['flipper_length'] > avg_flipper and peng['body_mass'] > avg_body_mass:
+                largest_pengs.append(peng)
+
     largest_percent = (len(largest_pengs) / len(island_penguins)) * 100
     return round(largest_percent, 2)
 
 
 
-def save_analysis_to_file(penguin, island):
+def save_analysis_to_file(penguin, island, island_penguins):
     with open("penguin_analysis.txt", "a") as file:
         file.write(f"\nAnalysis for {penguin} penguins on {island} island:\n")
-        island_penguins = get_island_penguins(penguin, island)
         if island_penguins == []:
-            file.write(f"\nNo {penguin} penguins found on {island}.\n\n")
+            file.write(f"No {penguin} penguins found on {island}.\n")
             return None
-        flipper_avg = avg_calculator(penguin, island, 'flipper_length')
-        body_mass_avg = avg_calculator(penguin, island, 'body_mass')
-        percentage = largest_penguins_percent(penguin, island)
+        flipper_avg = avg_calculator(penguin, island, 'flipper_length', island_penguins)
+        body_mass_avg = avg_calculator(penguin, island, 'body_mass', island_penguins)
+        percentage = largest_penguins_percent(penguin, island, island_penguins)
         file.write(f"Average flipper length: {flipper_avg} mm\n")
         file.write(f"Average body mass: {body_mass_avg} g\n")
         file.write(f"Percentage of penguins larger than average: {percentage}%\n")
@@ -178,21 +169,23 @@ def main():
 
     if island_penguins == []:
         print(f"No {penguin} penguins found on {island}.")
-        save_analysis_to_file(penguin, island)
+        save_analysis_to_file(penguin, island, island_penguins)
         return None
     
     # Perform calculations
+
     print("\nAnalyzing data...\n")
 
-    avg_flipper = avg_calculator(penguin, island, 'flipper_length')
+    # flipper length
+    avg_flipper = avg_calculator(penguin, island, 'flipper_length', island_penguins)
+    print(f"The average flipper length of {penguin} penguins on the island of {island} is {avg_flipper} mm.") 
     
-    if avg_flipper is not None:
-        print(f"The average flipper length of {penguin} penguins on the island of {island} is {avg_flipper} mm.")
-    
-    avg_body_mass = avg_calculator(penguin, island, 'body_mass')
+    # body mass
+    avg_body_mass = avg_calculator(penguin, island, 'body_mass', island_penguins)
     print(f"The average body mass of {penguin} penguins on the island of {island} is {avg_body_mass} g.")   
     
-    largest_percent = largest_penguins_percent(penguin, island)
+    # largest penguins (flipper length and body mass)
+    largest_percent = largest_penguins_percent(penguin, island, island_penguins)
     if largest_percent == 0:
         print(f"No {penguin} penguins on {island} have both a larger body mass and flipper length than the average.")
     else:
@@ -200,7 +193,9 @@ def main():
     
 
     # Write summary results to file
-    save_analysis_to_file(penguin, island)
+    save_analysis_to_file(penguin, island, island_penguins)
+
+    
 
 
 # avg_calculator('Adelie', 'Biscoe', 'flipper_length')
@@ -208,6 +203,48 @@ def main():
 # largest_penguins_percent('Adelie', 'Biscoe')
 main()
 
-class TestPenguinStats:
-   pass 
+class TestPenguinStats(unittest.TestCase):
     
+    def setUp(self):
+        """Create small fake penguin data for testing."""
+        self.sample_data = [
+            {"island": "Biscoe", "flipper_length": 190.0, "body_mass": 3800.0},
+            {"island": "Biscoe", "flipper_length": 200.0, "body_mass": 4000.0},
+            {"island": "Biscoe", "flipper_length": 210.0, "body_mass": 4200.0},
+            {"island": "Biscoe", "flipper_length": None, "body_mass": 3900.0},
+        ]
+        self.empty_data = []  # represents case where no penguins exist
+        self.missing_data = [
+            {"island": "Dream", "flipper_length": None, "body_mass": None},
+            {"island": "Dream", "flipper_length": None, "body_mass": None},
+        ]
+
+    def test_avg_calculator_general_flipper_length(self):
+        """General: Calculates average flipper length correctly."""
+        data = [
+            {"flipper_length": 190, "body_mass": 3000},
+            {"flipper_length": 200, "body_mass": 3200},
+            {"flipper_length": 210, "body_mass": 3100}
+        ]
+        result = avg_calculator("Adelie", "Biscoe", "flipper_length", data)
+        self.assertEqual(result, 200.0)
+
+    def test_avg_calculator_general_body_mass(self):
+        """General: Calculates average body mass correctly."""
+        data = [
+            {"flipper_length": 190, "body_mass": 3000},
+            {"flipper_length": 200, "body_mass": 3200},
+            {"flipper_length": 210, "body_mass": 3100}
+        ]
+        result = avg_calculator("Adelie", "Biscoe", "body_mass", data)
+        self.assertEqual(result, 3100.0)
+
+    def test_avg_calculator_edge_some_missing(self):
+        """Edge: Ignores None values and still averages correctly."""
+        data = [
+            {"flipper_length": None, "body_mass": 3000},
+            {"flipper_length": 200, "body_mass": None},
+            {"flipper_length": 210, "body_mass": 3100}
+        ]
+        result = avg_calculator("Adelie", "Biscoe", "flipper_length", data)
+        self.assertEqual(result, 205.0)  # average of 200 and 210
