@@ -110,3 +110,9 @@ Average flipper length: 189.73 mm
 Average body mass: 3688.39 g
 Percentage of penguins larger than average: 35.71%
 
+
+Analysis for Adelie penguins on Dream island:
+Average flipper length: 189.73 mm
+Average body mass: 3688.39 g
+Percentage of penguins larger than average: 35.71%
+
